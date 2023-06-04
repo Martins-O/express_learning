@@ -1,4 +1,5 @@
 import { Router } from 'express';
+const {Router} = require('express')
 
 const router = Router();
 
@@ -20,33 +21,59 @@ const groceries = [
     },
 ];
 
+router.use((req, res, next) => {
+    if (req.session.user) next();
+    else {
+        res.send(401)
+    }
+})
 
 router.get(
-    '/groceries',
-    // (request, response, next) => {
-    //     console.log('Before handling request');
-    //     next();
-    // },
+    '/',
     (req, res) => {
         res.send(groceries);
     }
-    // (req, res, next) => {
-    //     console.log('After finished handling request');
-    //     // res.send(403);
-    // }
 );
 
-router.get('/groceries/:item', (req, res) => {
+router.get('/:item', (req, res) => {
+    console.log(req.cookies)
     const { item } = req.params;
-    const groceryItem = groceries.find((g) => g, item === item);
+    const groceryItem = groceries.find((g) => g.item === item);
     res.send(groceryItem);
 });
 
-router.post('/groceries', (req, res) => {
+router.post('/', (req, res) => {
     groceries.push(req.body);
     console.log(req.body);
     res.sendStatus(201)
 });
 
+router.get('/shopping/cart', (req, res) => {
+    const { cart } = req.session;
+    if (!cart){
+        res.send("You have no cart session")
+    }
+    else {
+        res.send(cart);
+    }
+});
 
-export default router;
+router.post('/shopping/cart/item', (req, res) => {
+    const  {item, quantity, price} = req.body;
+    const cartItem = {item, quantity, price};
+    const {cart} = {item, quantity, price};
+    if (cart){
+        // const {item} = cart;
+        // item.push(cartItem);
+        req.session.cart.item.push(cartItem)
+    }else{
+        req.session.cart = {
+            item: [cartItem]
+        }
+    }
+    res.send(201);
+    console.log(cartItem);
+})
+
+
+module.exports = router;

@@ -1,11 +1,22 @@
-import express, { json, urlencoded } from 'express';
-import groceriesRouter from './routes/groceries';
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const session = require('express-session');
+const authRoute = require('./routes/auth');
+const groceriesRouter = require('./routes/groceries')
+const marketRouter = require('./routes/markets')
 
 const app = express();
 const PORT = 3004;
 
-app.use(json());
-app.use(urlencoded());
+app.use(express.json());
+app.use(express.urlencoded());
+app.use(cookieParser());
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false
+}))
+
 
 app.use((req, res, next) => {
     console.log(`${req.method}:${req.url}`);
@@ -16,5 +27,9 @@ app.use(groceriesRouter);
 
 app.listen(PORT, () => console.log('listening on port ${PORT}'))
 
+app.use('/api/v1/groceries',groceriesRouter);
+app.use('/api/v1/market', marketRouter);
+app.use('/api/v1/auth', authRoute);
 
+app.listen(PORT, () => console.log(`listening on port ${PORT}!`))
 
