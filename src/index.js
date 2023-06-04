@@ -5,8 +5,12 @@ const authRoute = require('./routes/auth');
 const groceriesRouter = require('./routes/groceries')
 const marketRouter = require('./routes/markets')
 
+require('./database')
+
 const app = express();
-const PORT = 3004;
+const PORT = 3001;
+
+
 
 app.use(express.json());
 app.use(express.urlencoded());
@@ -15,7 +19,7 @@ app.use(session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: false
-}))
+}));
 
 
 app.use((req, res, next) => {
@@ -23,13 +27,8 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(groceriesRouter);
-
-app.listen(PORT, () => console.log('listening on port ${PORT}'))
-
 app.use('/api/v1/groceries',groceriesRouter);
 app.use('/api/v1/market', marketRouter);
 app.use('/api/v1/auth', authRoute);
 
 app.listen(PORT, () => console.log(`listening on port ${PORT}!`))
-
