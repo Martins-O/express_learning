@@ -1,78 +1,68 @@
-const {Router} = require('express')
+const { Router } = require('express');
 
 const router = Router();
 
-const groceries = [
+const groceryList = [
     {
         item: 'milk',
-        price: 100,
-        quantity: 10,
+        quantity: 2,
     },
     {
-        item: 'eggs',
-        price: 200,
-        quantity: 20,
+        item: 'cereal',
+        quantity: 1,
     },
     {
-        item: 'cheese',
-        price: 300,
-        quantity: 30,
+        item: 'pop-tarts',
+        quantity: 1,
     },
 ];
 
 router.use((req, res, next) => {
-    if (req.session.user) next();
-    else {
-        res.send(401)
-    }
-})
-
-router.get(
-    '/',
-    (req, res) => {
-        res.send(groceries);
-    }
-);
-
-router.get('/:item', (req, res) => {
-    console.log(req.cookies)
-    const { item } = req.params;
-    const groceryItem = groceries.find((g) => g.item === item);
-    res.send(groceryItem);
+    console.log('Inside Groceries Auth Check Middleware');
+    console.log(req.user);
+    if (req.user) next();
+    else res.send(401);
 });
 
-router.post('/', (req, res) => {
-    groceries.push(req.body);
-    console.log(req.body);
-    res.sendStatus(201)
+router.get('/', (request, response) => {
+    response.send(groceryList);
 });
 
-router.get('/shopping/cart', (req, res) => {
-    const { cart } = req.session;
-    if (!cart){
-        res.send("You have no cart session")
-    }
-    else {
-        res.send(cart);
+router.get('/:item', (request, response) => {
+    console.log(request.cookies);
+    const { item } = request.params;
+    const groceryItem = groceryList.find((g) => g.item === item);
+    response.send(groceryItem);
+});
+
+router.post('/', (request, response) => {
+    console.log(request.body);
+    groceryList.push(request.body);
+    response.send(201);
+});
+
+router.get('/shopping/cart', (request, response) => {
+    const { cart } = request.session;
+    console.log('Cart');
+    if (!cart) {
+        response.send('You have no cart session');
+    } else {
+        response.send(cart);
     }
 });
 
-router.post('/shopping/cart/item', (req, res) => {
-    const  {item, quantity, price} = req.body;
-    const cartItem = {item, quantity, price};
-    const {cart} = {item, quantity, price};
-    if (cart){
-        // const {item} = cart;
-        // item.push(cartItem);
-        req.session.cart.item.push(cartItem)
-    }else{
-        req.session.cart = {
-            item: [cartItem]
-        }
+router.post('/shopping/cart/item', (request, response) => {
+    const { item, quantity } = request.body;
+    const cartItem = { item, quantity };
+    const { cart } = request.session;
+    if (cart) {
+        request.session.cart.items.push(cartItem);
+    } else {
+        request.session.cart = {
+            items: [cartItem],
+        };
     }
-    res.send(201);
-    console.log(cartItem);
-})
-
+    response.send(201);
+});
 
 module.exports = router;

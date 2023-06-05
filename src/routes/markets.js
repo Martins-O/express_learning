@@ -1,58 +1,46 @@
-const {Router} = require('express');
+const { Router } = require('express');
 
 const router = Router();
 
+router.use((req, res, next) => {
+    if (req.session.user) next();
+    else res.send(401);
+});
 const supermarkets = [
     {
         id: 1,
-        store: "Whole foods",
-        miles: 0.6
+        store: 'Whole Foods',
+        miles: 0.6,
     },
     {
         id: 2,
-        store: "Trader Joe's",
-        miles: 0.34
+        store: 'Trader Joes',
+        miles: 1,
     },
     {
         id: 3,
-        store: "Alberts",
-        miles: 56
+        store: 'Albertsons',
+        miles: 2.8,
+    },
+    {
+        id: 4,
+        store: 'Trader Joes',
+        miles: 3.5,
+    },
+    {
+        id: 5,
+        store: 'Albertsons',
+        miles: 1.8,
     },
 ];
 
-router.use((req, res, next) => {
-    if (req.session.user) next();
-    else {
-        res.send(401)
-    }
-})
-router.get('/', (req, res) => {
-    const {miles} = req.query;
+router.get('', (request, response) => {
+    const { miles } = request.query;
     const parsedMiles = parseInt(miles);
-    if (!isNaN(parsedMiles)){
-        const filteredStores = supermarkets.filter((s) => s.miles <= miles);
-        res.send(filteredStores);
-    }
-    else
-        res.send(supermarkets);
-});
-
-router.get('/:store', (req, res) => {
-    const { store } = req.params;
-    const stores = supermarkets.find((m) => m.store === store)
-    res.send(stores)
-});
-
-router.post('/', (req, res) => {
-    supermarkets.push(req.body);
-    console.log('req.body', req.body)
-    res.sendStatus(201)
-});
-
-router.delete('/:store', (req, res) => {
-    supermarkets.pop();
-    console.log('req.body', req.body)
-    res.send(201);
+    if (!isNaN(parsedMiles)) {
+        const filteredStores = supermarkets.filter((s) => s.miles <= parsedMiles);
+        response.send(filteredStores);
+    } else response.send(supermarkets);
 });
 
 module.exports = router;

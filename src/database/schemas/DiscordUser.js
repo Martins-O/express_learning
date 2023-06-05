@@ -1,12 +1,7 @@
 const mongoose = require('mongoose');
 
-const UserSchema = new mongoose.Schema({
-    email: {
-        type: mongoose.SchemaTypes.String,
-        required: true,
-        unique: true,
-    },
-    password: {
+const DiscordUserSchema = new mongoose.Schema({
+    discordId: {
         type: mongoose.SchemaTypes.String,
         required: true,
     },
@@ -17,4 +12,4 @@ const UserSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('users', UserSchema);
+module.exports = mongoose.model('discord_users', DiscordUserSchema);
